@@ -1,0 +1,50 @@
+name: Release Android (EAS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        required: true
+        default: production
+        type: choice
+        options:
+          - preview
+          - production
+      auto_submit:
+        description: Auto submit to Google Play
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Android
+        working-directory: apps/mobile
+        run: |
+          CMD="pnpm dlx eas-cli@latest build --platform android --profile ${{ inputs.profile }} --non-interactive --wait"
+          if [ "${{ inputs.auto_submit }}" = "true" ]; then
+            CMD="$CMD --auto-submit"
+          fi
+          echo "$CMD"
+          eval "$CMD"

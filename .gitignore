@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# Expo / React Native
+.expo/
+apps/mobile/.expo/
+apps/mobile/dist/
+apps/mobile/web-build/
+apps/mobile/ios/
+apps/mobile/android/
+
+# build artifacts
+dist/
+coverage/
+
+# local env
+.env
+.env.*
+!.env.example
+!apps/mobile/.env.example
+
+# misc
+.DS_Store
+*.log
+*.tsbuildinfo

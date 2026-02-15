@@ -1,0 +1,18 @@
+{
+  "name": "native-app-template-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.29.3",
+  "scripts": {
+    "dev": "pnpm --filter @company/mobile start",
+    "ios": "pnpm --filter @company/mobile ios",
+    "android": "pnpm --filter @company/mobile android",
+    "verify": "pnpm typecheck && pnpm versions:check",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "clean": "pnpm -r --if-present clean",
+    "versions:check": "pnpm dlx syncpack list-mismatches --filter '^(?!@company/).+'",
+    "versions:fix": "pnpm dlx syncpack fix-mismatches --filter '^(?!@company/).+'",
+    "init:template": "bash scripts/init-template.sh"
+  }
+}
