@@ -1,11 +1,12 @@
 import type { ConfigContext, ExpoConfig } from '@expo/config';
 
 const defaults = {
+  owner: 'taccaya',
   appName: 'Quads Burn',
   appSlug: 'quads-burn',
   iosBundleId: 'com.taccaya.quadsburn',
   androidPackage: 'com.taccaya.quadsburn',
-  easProjectId: '5f568bf6-3c06-484c-8263-9d584afeeec7'
+  easProjectId: 'dfad463c-5228-47b4-be1a-614f1b9f21cf'
 };
 
 const slugPattern = /^[a-z0-9-]+$/;
@@ -26,6 +27,7 @@ function assertWithMessage(value: string, pattern: RegExp, message: string) {
 export default ({ config }: ConfigContext): ExpoConfig => {
   const appName = readEnv('APP_NAME', defaults.appName);
   const appSlug = readEnv('APP_SLUG', defaults.appSlug);
+  const owner = readEnv('EXPO_OWNER', defaults.owner);
   const iosBundleId = readEnv('IOS_BUNDLE_ID', defaults.iosBundleId);
   const androidPackage = readEnv('ANDROID_PACKAGE', defaults.androidPackage);
   const easProjectId = readEnv('EAS_PROJECT_ID', defaults.easProjectId);
@@ -49,6 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...config,
+    owner,
     name: appName,
     slug: appSlug,
     scheme: appSlug.replace(/-/g, ''),
@@ -97,9 +100,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       appSlug,
       iosBundleId,
       androidPackage,
-      eas: {
-        projectId: easProjectId
-      }
+      ...(easProjectId
+        ? {
+            eas: {
+              projectId: easProjectId
+            }
+          }
+        : {})
     }
   };
 };
