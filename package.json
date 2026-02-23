@@ -11,8 +11,8 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "pnpm -r --if-present lint",
     "clean": "pnpm -r --if-present clean",
-    "versions:check": "pnpm dlx syncpack list-mismatches --filter '^(?!@company/).+'",
-    "versions:fix": "pnpm dlx syncpack fix-mismatches --filter '^(?!@company/).+'",
+    "versions:check": "pnpm dlx syncpack lint",
+    "versions:fix": "pnpm dlx syncpack fix",
     "init:template": "bash scripts/init-template.sh"
   }
 }

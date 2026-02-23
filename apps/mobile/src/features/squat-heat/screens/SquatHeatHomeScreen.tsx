@@ -12,6 +12,7 @@ import { Alert, StyleSheet } from 'react-native';
 import { Button, Screen, Text, View } from '@/design-system';
 import { env } from '@/lib/env';
 import { useHeatTimer } from '../hooks/useHeatTimer';
+import { syncSessionToAppleHealth } from '../services/appleHealthService';
 import { playCue, releaseCueAudio } from '../services/soundService';
 import { HeatTimerCard } from '../components/HeatTimerCard';
 import { IntervalRepInput } from '../components/IntervalRepInput';
@@ -26,7 +27,21 @@ export function SquatHeatHomeScreen() {
   const handleSessionComplete = useCallback(
     (draft: HeatSessionDraft) => {
       const log = createHeatSessionLog(draft);
-      void addSession(log);
+      void (async () => {
+        try {
+          await addSession(log);
+        } catch (error) {
+          if (__DEV__) {
+            console.warn('[QuadsBurn] Failed to save local session log.', error);
+          }
+          return;
+        }
+
+        const syncResult = await syncSessionToAppleHealth(log);
+        if (__DEV__ && syncResult === 'failed') {
+          console.warn('[QuadsBurn] Failed to sync workout to Apple Health.');
+        }
+      })();
     },
     [addSession]
   );
