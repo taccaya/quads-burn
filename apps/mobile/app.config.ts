@@ -4,7 +4,8 @@ const defaults = {
   appName: 'Quads Burn',
   appSlug: 'quads-burn',
   iosBundleId: 'com.taccaya.quadsburn',
-  androidPackage: 'com.taccaya.quadsburn'
+  androidPackage: 'com.taccaya.quadsburn',
+  easProjectId: '5f568bf6-3c06-484c-8263-9d584afeeec7'
 };
 
 const slugPattern = /^[a-z0-9-]+$/;
@@ -27,6 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   const appSlug = readEnv('APP_SLUG', defaults.appSlug);
   const iosBundleId = readEnv('IOS_BUNDLE_ID', defaults.iosBundleId);
   const androidPackage = readEnv('ANDROID_PACKAGE', defaults.androidPackage);
+  const easProjectId = readEnv('EAS_PROJECT_ID', defaults.easProjectId);
 
   assertWithMessage(appSlug, slugPattern, 'APP_SLUG must match ^[a-z0-9-]+$');
   assertWithMessage(
@@ -94,7 +96,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       appName,
       appSlug,
       iosBundleId,
-      androidPackage
+      androidPackage,
+      eas: {
+        projectId: easProjectId
+      }
     }
   };
 };
