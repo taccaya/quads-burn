@@ -147,7 +147,7 @@ export function SquatHeatHistoryScreen() {
   };
 
   return (
-    <Screen ref={screenRef} contentContainerStyle={styles.container}>
+    <Screen scrollRef={screenRef} contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <View style={styles.brandPill}>
           <Text style={styles.brandPillText}>{env.appName.toUpperCase()}</Text>

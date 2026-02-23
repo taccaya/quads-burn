@@ -1,7 +1,7 @@
 import { SQUAT_HEAT_PROTOCOL } from '@company/domain';
 import { useMemo, useRef, useState } from 'react';
-import { StyleSheet, TextInput as RNTextInput } from 'react-native';
-import { Button, Text, TextInput, View } from '@/design-system';
+import { StyleSheet, TextInput as NativeTextInput, type TextInput as RNTextInput } from 'react-native';
+import { Button, Text, View } from '@/design-system';
 
 export type ManualSessionInput = {
   startedAtIso: string;
@@ -177,7 +177,7 @@ export function ManualSessionEntryCard({
       <View style={styles.timeRow}>
         <Text style={styles.label}>開始時刻</Text>
         <View style={styles.timeInputRow}>
-          <TextInput
+          <NativeTextInput
             value={hourInput}
             onChangeText={(value) => {
               const normalized = value.replace(/[^\d]/g, '');
@@ -199,7 +199,7 @@ export function ManualSessionEntryCard({
             autoCorrect={false}
           />
           <Text style={styles.colonText}>:</Text>
-          <TextInput
+          <NativeTextInput
             ref={minuteRef}
             value={minuteInput}
             onChangeText={(value) => {
@@ -225,7 +225,7 @@ export function ManualSessionEntryCard({
         {rounds.map((index) => (
           <View key={`manual-round-${index + 1}`} style={styles.intervalCell}>
             <Text style={styles.intervalLabel}>R{index + 1}</Text>
-            <TextInput
+            <NativeTextInput
               ref={(value) => {
                 intervalRefs.current[index] = value;
               }}
