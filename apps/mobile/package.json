@@ -9,6 +9,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "prebuild": "expo prebuild",
+    "icon:generate": "node ./scripts/generate-icon-with-gemini.mjs",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .expo dist ios android"
   },
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@expo/ngrok": "^4.1.0",
+    "@google/genai": "^1.42.0",
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
   }

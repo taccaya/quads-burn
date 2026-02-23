@@ -90,6 +90,45 @@ Notes:
 - Health permission strings are configured by the Expo plugin in `app.config.ts`.
 - A Development Build or TestFlight build is required to test HealthKit.
 
+## 7) Manual Session Registration (In App)
+
+- Open `履歴とカレンダー`.
+- Tap `手動で記録を追加`.
+- Set start time and interval reps (`R1` to `R8`) and save.
+- The saved item is included in daily/weekly stats and calendar marks immediately.
+
+## 8) Generate App Icon with Gemini (Nano Banana Pro 3.0)
+
+This repository includes an icon generation script using Gemini image generation.
+
+Setup environment variable:
+
+```bash
+export GEMINI_API_KEY="<your-api-key>"
+```
+
+Generate icon candidate (uses `gemini-3-pro-image-preview` by default):
+
+```bash
+cd apps/mobile
+pnpm icon:generate
+```
+
+Optional:
+
+- Change model: `export GEMINI_IMAGE_MODEL="gemini-3-pro-image-preview"`
+- Change output path: `export ICON_OUTPUT_PATH="assets/icon.alt.png"`
+- Override prompt inline: `pnpm icon:generate "your custom prompt"`
+
+Apply generated icon to Expo assets:
+
+```bash
+cp assets/icon.generated.png assets/icon.png
+cp assets/icon.generated.png assets/adaptive-icon.png
+cp assets/icon.generated.png assets/splash-icon.png
+sips -z 48 48 assets/icon.generated.png --out assets/favicon.png
+```
+
 ## Template Notes
 
 - Native dependencies should stay in `apps/mobile/package.json`.
