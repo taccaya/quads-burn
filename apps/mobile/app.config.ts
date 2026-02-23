@@ -74,7 +74,19 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       bundler: 'metro',
       favicon: './assets/favicon.png'
     },
-    plugins: ['expo-router'],
+    plugins: [
+      'expo-router',
+      [
+        '@kingstinct/react-native-healthkit',
+        {
+          NSHealthShareUsageDescription:
+            `${appName}はApple Healthのワークアウト情報を読み取る場合があります。`,
+          NSHealthUpdateUsageDescription:
+            `${appName}は完了したワークアウトをApple Healthに保存します。`,
+          background: false
+        }
+      ]
+    ],
     experiments: {
       typedRoutes: true
     },

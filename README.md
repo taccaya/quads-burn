@@ -70,6 +70,26 @@ Required repository secret:
 
 - `EXPO_TOKEN`
 
+## 6) Apple Health (iOS only) + Internal TestFlight
+
+This project now includes Apple Health workout write support (`HealthKit`) for iOS builds.
+It does not work in Expo Go.
+
+Build and submit flow:
+
+```bash
+pnpm --filter @company/mobile prebuild
+pnpm dlx eas-cli build --platform ios --profile production
+pnpm dlx eas-cli submit --platform ios --latest
+```
+
+After upload, add the build to an Internal Testing group in App Store Connect.
+
+Notes:
+
+- Health permission strings are configured by the Expo plugin in `app.config.ts`.
+- A Development Build or TestFlight build is required to test HealthKit.
+
 ## Template Notes
 
 - Native dependencies should stay in `apps/mobile/package.json`.
