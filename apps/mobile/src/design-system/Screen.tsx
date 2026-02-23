@@ -1,22 +1,20 @@
 import { ScrollView, StyleSheet, type ScrollViewProps } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ScreenProps = ScrollViewProps;
 
 export function Screen({ contentContainerStyle, ...props }: ScreenProps) {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={[styles.content, contentContainerStyle]}
-        {...props}
-      />
-    </SafeAreaView>
+    <ScrollView
+      style={styles.root}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={[styles.content, contentContainerStyle]}
+      {...props}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  root: {
     flex: 1,
     backgroundColor: '#f3f4f6'
   },

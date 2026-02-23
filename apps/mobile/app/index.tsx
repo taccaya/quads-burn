@@ -1,5 +1,5 @@
-import { HomeScreen } from '@/features/example/screens/HomeScreen';
+import { SquatHeatHomeScreen } from '@/features/squat-heat/screens/SquatHeatHomeScreen';
 
 export default function Page() {
-  return <HomeScreen />;
+  return <SquatHeatHomeScreen />;
 }
