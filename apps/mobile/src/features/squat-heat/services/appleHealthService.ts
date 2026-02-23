@@ -1,18 +1,12 @@
 import type { HeatSessionLog } from '@company/domain';
-import {
-  AuthorizationStatus,
-  WorkoutActivityType,
-  WorkoutTypeIdentifier,
-  authorizationStatusFor,
-  isHealthDataAvailableAsync,
-  requestAuthorization,
-  saveWorkoutSample
-} from '@kingstinct/react-native-healthkit';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 
+type HealthKitModule = typeof import('@kingstinct/react-native-healthkit');
 type AppleHealthSyncResult =
   | 'saved'
   | 'skipped-platform'
+  | 'skipped-expo-go'
   | 'skipped-unavailable'
   | 'skipped-unauthorized'
   | 'skipped-invalid-session'
@@ -21,23 +15,43 @@ type AppleHealthSyncResult =
 let availabilityChecked = false;
 let isHealthDataAvailable = false;
 let authorizationRequested = false;
+let healthKitModulePromise: Promise<HealthKitModule | null> | null = null;
+
+function isExpoGoRuntime() {
+  return Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+}
+
+async function loadHealthKitModule() {
+  if (healthKitModulePromise) {
+    return healthKitModulePromise;
+  }
+
+  healthKitModulePromise = import('@kingstinct/react-native-healthkit')
+    .then((module) => module)
+    .catch(() => null);
+
+  return healthKitModulePromise;
+}
 
 function toDate(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function hasWorkoutWriteAuthorization() {
-  return authorizationStatusFor(WorkoutTypeIdentifier) === AuthorizationStatus.sharingAuthorized;
+function hasWorkoutWriteAuthorization(healthkit: HealthKitModule) {
+  return (
+    healthkit.authorizationStatusFor(healthkit.WorkoutTypeIdentifier) ===
+    healthkit.AuthorizationStatus.sharingAuthorized
+  );
 }
 
-async function checkHealthDataAvailability() {
+async function checkHealthDataAvailability(healthkit: HealthKitModule) {
   if (availabilityChecked) {
     return isHealthDataAvailable;
   }
 
   try {
-    isHealthDataAvailable = await isHealthDataAvailableAsync();
+    isHealthDataAvailable = await healthkit.isHealthDataAvailableAsync();
   } catch {
     isHealthDataAvailable = false;
   }
@@ -46,12 +60,12 @@ async function checkHealthDataAvailability() {
   return isHealthDataAvailable;
 }
 
-async function ensureWorkoutAuthorization() {
-  if (!(await checkHealthDataAvailability())) {
+async function ensureWorkoutAuthorization(healthkit: HealthKitModule) {
+  if (!(await checkHealthDataAvailability(healthkit))) {
     return false;
   }
 
-  if (hasWorkoutWriteAuthorization()) {
+  if (hasWorkoutWriteAuthorization(healthkit)) {
     return true;
   }
 
@@ -62,15 +76,15 @@ async function ensureWorkoutAuthorization() {
   authorizationRequested = true;
 
   try {
-    const granted = await requestAuthorization({
-      toShare: [WorkoutTypeIdentifier]
+    const granted = await healthkit.requestAuthorization({
+      toShare: [healthkit.WorkoutTypeIdentifier]
     });
 
     if (!granted) {
       return false;
     }
 
-    return hasWorkoutWriteAuthorization();
+    return hasWorkoutWriteAuthorization(healthkit);
   } catch {
     return false;
   }
@@ -81,11 +95,20 @@ export async function syncSessionToAppleHealth(session: HeatSessionLog): Promise
     return 'skipped-platform';
   }
 
-  if (!(await checkHealthDataAvailability())) {
+  if (isExpoGoRuntime()) {
+    return 'skipped-expo-go';
+  }
+
+  const healthkit = await loadHealthKitModule();
+  if (!healthkit) {
+    return 'failed';
+  }
+
+  if (!(await checkHealthDataAvailability(healthkit))) {
     return 'skipped-unavailable';
   }
 
-  if (!(await ensureWorkoutAuthorization())) {
+  if (!(await ensureWorkoutAuthorization(healthkit))) {
     return 'skipped-unauthorized';
   }
 
@@ -96,8 +119,8 @@ export async function syncSessionToAppleHealth(session: HeatSessionLog): Promise
   }
 
   try {
-    await saveWorkoutSample(
-      WorkoutActivityType.functionalStrengthTraining,
+    await healthkit.saveWorkoutSample(
+      healthkit.WorkoutActivityType.functionalStrengthTraining,
       [],
       startedAt,
       completedAt,
