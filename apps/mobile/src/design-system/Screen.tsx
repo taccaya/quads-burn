@@ -1,17 +1,22 @@
+import { forwardRef } from 'react';
 import { ScrollView, StyleSheet, type ScrollViewProps } from 'react-native';
 
 type ScreenProps = ScrollViewProps;
 
-export function Screen({ contentContainerStyle, ...props }: ScreenProps) {
+export const Screen = forwardRef<ScrollView, ScreenProps>(function Screen(
+  { contentContainerStyle, ...props },
+  ref
+) {
   return (
     <ScrollView
+      ref={ref}
       style={styles.root}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={[styles.content, contentContainerStyle]}
       {...props}
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   root: {

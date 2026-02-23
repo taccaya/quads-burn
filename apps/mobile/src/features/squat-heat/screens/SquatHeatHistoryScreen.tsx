@@ -1,10 +1,12 @@
-import { computeDailyBest } from '@company/domain';
-import { useMemo, useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { SQUAT_HEAT_PROTOCOL, computeDailyBest, createHeatSessionLog } from '@company/domain';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, type LayoutChangeEvent } from 'react-native';
 import { Calendar, type DateData } from 'react-native-calendars';
 import { Button, Screen, Text, View } from '@/design-system';
 import { env } from '@/lib/env';
+import { syncSessionToAppleHealth } from '../services/appleHealthService';
 import { exportHeatLogsAsCsv, exportHeatLogsAsJson } from '../services/exportService';
+import { ManualSessionEntryCard, type ManualSessionInput } from '../components/ManualSessionEntryCard';
 import { SessionListItem } from '../components/SessionListItem';
 import { toDateKey } from '../utils/date';
 import { useHeatLogs } from '@/state';
@@ -18,8 +20,12 @@ type MarkedDate = {
 };
 
 export function SquatHeatHistoryScreen() {
-  const { sessions, removeSession } = useHeatLogs();
+  const { sessions, removeSession, addSession } = useHeatLogs();
+  const screenRef = useRef<ScrollView | null>(null);
   const [selectedDate, setSelectedDate] = useState(() => toDateKey(new Date()));
+  const [isManualFormVisible, setIsManualFormVisible] = useState(false);
+  const [isSubmittingManual, setIsSubmittingManual] = useState(false);
+  const [shouldScrollToManualForm, setShouldScrollToManualForm] = useState(false);
 
   const dailyBest = useMemo(() => computeDailyBest(sessions), [sessions]);
   const selectedDaily = dailyBest[selectedDate];
@@ -61,6 +67,42 @@ export function SquatHeatHistoryScreen() {
     ]);
   };
 
+  const submitManualSession = useCallback(
+    async ({ startedAtIso, intervalReps }: ManualSessionInput) => {
+      const startedAt = new Date(startedAtIso);
+      if (Number.isNaN(startedAt.getTime())) {
+        Alert.alert('保存に失敗しました', '開始日時が正しくありません。');
+        throw new Error('Invalid manual session datetime.');
+      }
+
+      const completedAt = new Date(startedAt.getTime() + SQUAT_HEAT_PROTOCOL.totalSeconds * 1000);
+      const log = createHeatSessionLog({
+        startedAt: startedAt.toISOString(),
+        completedAt: completedAt.toISOString(),
+        durationSec: SQUAT_HEAT_PROTOCOL.totalSeconds,
+        intervalReps
+      });
+
+      setIsSubmittingManual(true);
+
+      try {
+        await addSession(log);
+        const syncResult = await syncSessionToAppleHealth(log);
+        if (__DEV__ && syncResult === 'failed') {
+          console.warn('[QuadsBurn] Manual session did not sync to Apple Health.');
+        }
+        setIsManualFormVisible(false);
+        Alert.alert('保存しました', '手動でセッション記録を追加しました。');
+      } catch (error) {
+        Alert.alert('保存に失敗しました', '手動登録に失敗しました。');
+        throw error;
+      } finally {
+        setIsSubmittingManual(false);
+      }
+    },
+    [addSession]
+  );
+
   const runExportJson = async () => {
     try {
       await exportHeatLogsAsJson(sessions);
@@ -85,8 +127,27 @@ export function SquatHeatHistoryScreen() {
     ]);
   };
 
+  const toggleManualForm = () => {
+    setIsManualFormVisible((previous) => {
+      const next = !previous;
+      if (next) {
+        setShouldScrollToManualForm(true);
+      }
+      return next;
+    });
+  };
+
+  const onManualFormLayout = (event: LayoutChangeEvent) => {
+    if (!shouldScrollToManualForm) {
+      return;
+    }
+    const y = Math.max(event.nativeEvent.layout.y - 12, 0);
+    screenRef.current?.scrollTo({ y, animated: true });
+    setShouldScrollToManualForm(false);
+  };
+
   return (
-    <Screen contentContainerStyle={styles.container}>
+    <Screen ref={screenRef} contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <View style={styles.brandPill}>
           <Text style={styles.brandPillText}>{env.appName.toUpperCase()}</Text>
@@ -126,6 +187,26 @@ export function SquatHeatHistoryScreen() {
           日別ベスト: {selectedDaily ? `${selectedDaily.bestTotalReps} 回` : '-'}
         </Text>
       </View>
+
+      <View style={styles.manualActionRow}>
+        <Button
+          onPress={toggleManualForm}
+          style={styles.manualActionButton}
+          textStyle={styles.manualActionButtonText}
+        >
+          {isManualFormVisible ? '手動登録フォームを閉じる' : '手動で記録を追加'}
+        </Button>
+      </View>
+
+      {isManualFormVisible ? (
+        <View onLayout={onManualFormLayout}>
+          <ManualSessionEntryCard
+            selectedDate={selectedDate}
+            isSubmitting={isSubmittingManual}
+            onSubmit={submitManualSession}
+          />
+        </View>
+      ) : null}
 
       <View style={styles.exportRow}>
         <Button onPress={openExportMenu} style={styles.exportButton}>
@@ -204,6 +285,20 @@ const styles = StyleSheet.create({
   summaryText: {
     color: '#334155',
     fontSize: 14
+  },
+  manualActionRow: {
+    flexDirection: 'row'
+  },
+  manualActionButton: {
+    flex: 1,
+    minHeight: 46,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#dbeafe'
+  },
+  manualActionButtonText: {
+    color: '#0369a1',
+    fontWeight: '700'
   },
   exportRow: {
     flexDirection: 'row'
