@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { Button, Screen, Text, View } from '@/design-system';
+import { env } from '@/lib/env';
 import { useHeatTimer } from '../hooks/useHeatTimer';
 import { playCue, releaseCueAudio } from '../services/soundService';
 import { HeatTimerCard } from '../components/HeatTimerCard';
@@ -67,13 +68,17 @@ export function SquatHeatHomeScreen() {
   return (
     <Screen contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>スクワットヒート</Text>
-        <Text style={styles.subtitle}>20秒運動 / 10秒休憩 x 8ラウンド (4分)</Text>
+        <View style={styles.brandPill}>
+          <Text style={styles.brandPillText}>QUADS BURN</Text>
+        </View>
+        <Text style={styles.title}>{env.appName}</Text>
+        <Text style={styles.subtitle}>4分で完了。20秒運動 / 10秒休憩 x 8ラウンド</Text>
       </View>
 
       <HeatTimerCard
         status={timer.status}
         phase={timer.phase}
+        roundIndex={timer.roundIndex}
         roundNumber={timer.roundNumber}
         totalRounds={SQUAT_HEAT_PROTOCOL.rounds}
         remainingPhaseSeconds={timer.remainingPhaseSeconds}
@@ -84,7 +89,11 @@ export function SquatHeatHomeScreen() {
         onPress={startOrReset}
         style={[
           styles.startButton,
-          timer.status === 'running' ? styles.abortButton : styles.startIdleButton
+          timer.status === 'running'
+            ? styles.abortButton
+            : timer.status === 'completed'
+              ? styles.restartButton
+              : styles.startIdleButton
         ]}
       >
         {timer.status === 'running'
@@ -99,7 +108,7 @@ export function SquatHeatHomeScreen() {
         style={styles.historyButton}
         textStyle={styles.historyButtonText}
       >
-        履歴とカレンダーを見る
+        履歴とカレンダー
       </Button>
 
       {timer.editableRoundIndex !== null ? (
@@ -144,53 +153,75 @@ export function SquatHeatHomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12
+    gap: 14
   },
   header: {
-    gap: 4
+    gap: 6
+  },
+  brandPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#fee2e2',
+    borderRadius: 999,
+    borderCurve: 'continuous',
+    paddingHorizontal: 10,
+    paddingVertical: 4
+  },
+  brandPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#991b1b',
+    letterSpacing: 0.9
   },
   title: {
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: '800',
     color: '#0f172a'
   },
   subtitle: {
-    fontSize: 13,
-    color: '#475569'
+    fontSize: 14,
+    color: '#334155'
   },
   startButton: {
-    minHeight: 56
+    minHeight: 64,
+    borderRadius: 14
   },
   startIdleButton: {
-    backgroundColor: '#15803d'
+    backgroundColor: '#16a34a'
   },
   abortButton: {
     backgroundColor: '#dc2626'
   },
+  restartButton: {
+    backgroundColor: '#0f766e'
+  },
   historyButton: {
-    minHeight: 40,
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#cbd5e1'
+    minHeight: 42,
+    backgroundColor: '#ffffff',
+    borderWidth: 1.5,
+    borderColor: '#d1d5db'
   },
   historyButtonText: {
     color: '#334155',
     fontWeight: '600'
   },
   infoCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffbeb',
     borderRadius: 14,
     borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: '#fef3c7',
     padding: 14
   },
   infoText: {
-    color: '#475569',
+    color: '#92400e',
     fontSize: 13
   },
   todayCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     padding: 16,
     gap: 6
   },

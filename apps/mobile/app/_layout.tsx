@@ -12,13 +12,13 @@ export default function RootLayout() {
         <Stack.Screen
           name="index"
           options={{
-            title: 'スクワットヒート'
+            title: 'Quads Burn'
           }}
         />
         <Stack.Screen
           name="history"
           options={{
-            title: '記録とカレンダー'
+            title: 'Quads Burn Log'
           }}
         />
       </Stack>

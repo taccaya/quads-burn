@@ -12,11 +12,13 @@ export function SessionListItem({ session, onDelete }: SessionListItemProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.date}>開始時刻</Text>
+        <Text style={styles.date}>開始</Text>
         <Text style={styles.time}>{formatLocalTime(session.startedAt)}</Text>
       </View>
-      <Text style={styles.total}>合計 {session.totalReps} 回</Text>
-      <Text style={styles.meta}>最高区間 {session.bestIntervalReps} 回</Text>
+      <View style={styles.totalRow}>
+        <Text style={styles.total}>合計 {session.totalReps} 回</Text>
+        <Text style={styles.best}>最高 {session.bestIntervalReps} 回</Text>
+      </View>
       <Text style={styles.intervals}>区間: {session.intervalReps.join(' / ')}</Text>
       {onDelete ? (
         <Button
@@ -36,6 +38,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 14,
     borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     padding: 14,
     gap: 6
   },
@@ -53,14 +57,25 @@ const styles = StyleSheet.create({
     color: '#475569',
     fontSize: 13
   },
+  totalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
   total: {
     color: '#0f172a',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800'
   },
-  meta: {
-    color: '#475569',
-    fontSize: 13
+  best: {
+    color: '#0b4a6f',
+    fontSize: 12,
+    fontWeight: '700',
+    backgroundColor: '#e0f2fe',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderCurve: 'continuous'
   },
   intervals: {
     color: '#334155',
@@ -68,11 +83,12 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginTop: 6,
-    backgroundColor: '#fff1f2',
-    borderColor: '#fecdd3',
-    borderWidth: 1
+    minHeight: 36,
+    backgroundColor: '#ffffff'
   },
   deleteButtonText: {
-    color: '#be123c'
+    color: '#be123c',
+    fontSize: 12,
+    textDecorationLine: 'underline'
   }
 });

@@ -31,35 +31,31 @@ export function IntervalRepInput({ roundNumber, value, onChange }: IntervalRepIn
   return (
     <View style={styles.card}>
       <Text style={styles.title}>ラウンド{roundNumber}の回数を入力</Text>
-      <View style={styles.quickActions}>
-        <Button onPress={() => apply(18)} style={styles.quickButton} textStyle={styles.quickButtonText}>
-          18
-        </Button>
-        <Button onPress={() => apply(20)} style={styles.quickButton} textStyle={styles.quickButtonText}>
-          20
-        </Button>
-        <Button onPress={() => apply(21)} style={styles.quickButton} textStyle={styles.quickButtonText}>
-          21
-        </Button>
+      <View style={styles.valuePanel}>
+        <Text style={styles.valueLabel}>現在値</Text>
+        <Text style={styles.valueNumber}>{value} 回</Text>
       </View>
       <View style={styles.controls}>
         <Button onPress={() => apply(value - 1)} style={styles.smallButton} textStyle={styles.buttonText}>
           -1
         </Button>
-        <TextInput
-          keyboardType="number-pad"
-          value={textValue}
-          onChangeText={(next) => {
-            const digits = next.replace(/[^0-9]/g, '');
-            setTextValue(digits);
-            onChange(clamp(Number(digits || 0)));
-          }}
-          style={styles.input}
-        />
         <Button onPress={() => apply(value + 1)} style={styles.smallButton} textStyle={styles.buttonText}>
           +1
         </Button>
+        <Button onPress={() => apply(value + 2)} style={styles.smallButton} textStyle={styles.buttonText}>
+          +2
+        </Button>
       </View>
+      <TextInput
+        keyboardType="number-pad"
+        value={textValue}
+        onChangeText={(next) => {
+          const digits = next.replace(/[^0-9]/g, '');
+          setTextValue(digits);
+          onChange(clamp(Number(digits || 0)));
+        }}
+        style={styles.input}
+      />
     </View>
   );
 }
@@ -77,6 +73,26 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#0f172a'
   },
+  valuePanel: {
+    borderRadius: 14,
+    borderCurve: 'continuous',
+    backgroundColor: '#fef3c7',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    gap: 4,
+    alignItems: 'center'
+  },
+  valueLabel: {
+    color: '#92400e',
+    fontSize: 13,
+    fontWeight: '600'
+  },
+  valueNumber: {
+    color: '#7c2d12',
+    fontSize: 32,
+    fontWeight: '800',
+    fontVariant: ['tabular-nums']
+  },
   controls: {
     flexDirection: 'row',
     gap: 8,
@@ -84,34 +100,24 @@ const styles = StyleSheet.create({
   },
   smallButton: {
     flex: 1,
-    minHeight: 42
+    minHeight: 50,
+    backgroundColor: '#1f2937'
   },
   buttonText: {
-    fontSize: 15
+    fontSize: 15,
+    color: '#ffffff'
   },
   input: {
-    flex: 1.4,
-    minHeight: 42,
+    minHeight: 48,
     borderWidth: 1,
     borderColor: '#cbd5e1',
-    borderRadius: 10,
+    borderRadius: 12,
     borderCurve: 'continuous',
     backgroundColor: '#ffffff',
     textAlign: 'center',
     fontSize: 18,
     color: '#0f172a',
-    fontWeight: '700'
-  },
-  quickActions: {
-    flexDirection: 'row',
-    gap: 8
-  },
-  quickButton: {
-    flex: 1,
-    minHeight: 48,
-    backgroundColor: '#1e293b'
-  },
-  quickButtonText: {
-    fontSize: 15
+    fontWeight: '700',
+    fontVariant: ['tabular-nums']
   }
 });

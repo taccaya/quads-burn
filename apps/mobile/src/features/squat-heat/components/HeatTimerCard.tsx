@@ -5,6 +5,7 @@ import { Text, View } from '@/design-system';
 type HeatTimerCardProps = {
   status: HeatTimerStatus;
   phase: HeatTimerPhase;
+  roundIndex: number;
   roundNumber: number;
   totalRounds: number;
   remainingPhaseSeconds: number;
@@ -30,45 +31,79 @@ function labelForPhase(status: HeatTimerStatus, phase: HeatTimerPhase) {
 function cardStyleForPhase(status: HeatTimerStatus, phase: HeatTimerPhase) {
   if (status === 'running' && phase === 'work') {
     return {
-      backgroundColor: '#fef2f2'
+      backgroundColor: '#dc2626'
     };
   }
 
   if (status === 'running' && phase === 'rest') {
     return {
-      backgroundColor: '#eff6ff'
+      backgroundColor: '#2563eb'
     };
   }
 
   if (status === 'completed') {
     return {
-      backgroundColor: '#ecfdf5'
+      backgroundColor: '#16a34a'
     };
   }
 
   return {
-    backgroundColor: '#ffffff'
+    backgroundColor: '#1e293b'
   };
+}
+
+function getCompletedRoundCount(
+  status: HeatTimerStatus,
+  phase: HeatTimerPhase,
+  roundIndex: number,
+  totalRounds: number
+) {
+  if (status === 'idle') {
+    return 0;
+  }
+
+  if (status === 'completed') {
+    return totalRounds;
+  }
+
+  if (phase === 'rest') {
+    return Math.min(totalRounds, roundIndex + 1);
+  }
+
+  return Math.min(totalRounds, roundIndex);
 }
 
 export function HeatTimerCard({
   status,
   phase,
+  roundIndex,
   roundNumber,
   totalRounds,
   remainingPhaseSeconds,
   remainingTotalSeconds
 }: HeatTimerCardProps) {
+  const completedRounds = getCompletedRoundCount(status, phase, roundIndex, totalRounds);
+
   return (
     <View style={[styles.card, cardStyleForPhase(status, phase)]}>
       <View style={styles.row}>
-        <Text style={styles.phase}>{labelForPhase(status, phase)}</Text>
+        <View style={styles.phaseBadge}>
+          <Text style={styles.phase}>{labelForPhase(status, phase)}</Text>
+        </View>
         <Text style={styles.round}>
           ラウンド {Math.min(roundNumber, totalRounds)} / {totalRounds}
         </Text>
       </View>
       <Text style={styles.totalTimer}>{formatAsClock(remainingTotalSeconds)}</Text>
       <Text style={styles.phaseTimer}>区間残り {formatAsClock(Math.max(remainingPhaseSeconds, 0))}</Text>
+      <View style={styles.dots}>
+        {Array.from({ length: totalRounds }, (_, index) => (
+          <View
+            key={`round-dot-${index}`}
+            style={[styles.dot, index < completedRounds ? styles.dotCompleted : styles.dotPending]}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -78,33 +113,67 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 16,
     borderCurve: 'continuous',
-    padding: 20,
-    gap: 10
+    padding: 22,
+    gap: 10,
+    shadowColor: '#020617',
+    shadowOffset: {
+      width: 0,
+      height: 10
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    elevation: 8
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
   },
+  phaseBadge: {
+    borderRadius: 999,
+    borderCurve: 'continuous',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(255,255,255,0.2)'
+  },
   phase: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
-    color: '#0f172a'
+    color: '#ffffff'
   },
   round: {
     fontSize: 13,
-    color: '#475569'
+    color: 'rgba(255,255,255,0.85)',
+    fontWeight: '600'
   },
   totalTimer: {
-    fontSize: 48,
+    fontSize: 64,
     fontWeight: '800',
-    color: '#0f172a',
+    color: '#ffffff',
     letterSpacing: 1,
     fontVariant: ['tabular-nums']
   },
   phaseTimer: {
     fontSize: 14,
-    color: '#475569',
+    color: 'rgba(255,255,255,0.75)',
     fontVariant: ['tabular-nums']
+  },
+  dots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 2
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 999,
+    borderCurve: 'continuous'
+  },
+  dotCompleted: {
+    backgroundColor: 'rgba(255,255,255,0.92)'
+  },
+  dotPending: {
+    backgroundColor: 'rgba(255,255,255,0.32)'
   }
 });

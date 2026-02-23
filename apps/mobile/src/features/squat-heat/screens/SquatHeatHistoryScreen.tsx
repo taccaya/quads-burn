@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { Calendar, type DateData } from 'react-native-calendars';
 import { Button, Screen, Text, View } from '@/design-system';
+import { env } from '@/lib/env';
 import { exportHeatLogsAsCsv, exportHeatLogsAsJson } from '../services/exportService';
 import { SessionListItem } from '../components/SessionListItem';
 import { toDateKey } from '../utils/date';
@@ -33,7 +34,7 @@ export function SquatHeatHistoryScreen() {
     for (const key of Object.keys(dailyBest)) {
       marks[key] = {
         marked: true,
-        dotColor: '#0f172a'
+        dotColor: '#dc2626'
       };
     }
 
@@ -87,8 +88,11 @@ export function SquatHeatHistoryScreen() {
   return (
     <Screen contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>記録とカレンダー</Text>
-        <Text style={styles.subtitle}>実施日と成績を確認できます</Text>
+        <View style={styles.brandPill}>
+          <Text style={styles.brandPillText}>{env.appName.toUpperCase()}</Text>
+        </View>
+        <Text style={styles.title}>履歴とカレンダー</Text>
+        <Text style={styles.subtitle}>日ごとの成績を確認し、全ログを共有できます</Text>
       </View>
 
       <View style={styles.calendarCard}>
@@ -98,8 +102,17 @@ export function SquatHeatHistoryScreen() {
           onDayPress={(day: DateData) => setSelectedDate(day.dateString)}
           enableSwipeMonths
           theme={{
-            todayTextColor: '#0f172a',
-            arrowColor: '#0f172a'
+            backgroundColor: 'transparent',
+            calendarBackground: 'transparent',
+            todayTextColor: '#dc2626',
+            dayTextColor: '#0f172a',
+            textDisabledColor: '#cbd5e1',
+            arrowColor: '#0f172a',
+            monthTextColor: '#0f172a',
+            textMonthFontWeight: '700',
+            textDayHeaderFontSize: 12,
+            textDayFontSize: 14,
+            textMonthFontSize: 16
           }}
         />
       </View>
@@ -116,7 +129,7 @@ export function SquatHeatHistoryScreen() {
 
       <View style={styles.exportRow}>
         <Button onPress={openExportMenu} style={styles.exportButton}>
-          エクスポート
+          全ログをエクスポート
         </Button>
       </View>
 
@@ -138,30 +151,48 @@ export function SquatHeatHistoryScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12
+    gap: 14
   },
   header: {
-    gap: 4
+    gap: 6
+  },
+  brandPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#fee2e2',
+    borderRadius: 999,
+    borderCurve: 'continuous',
+    paddingHorizontal: 10,
+    paddingVertical: 4
+  },
+  brandPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#991b1b',
+    letterSpacing: 0.9
   },
   title: {
-    fontSize: 26,
+    fontSize: 30,
     color: '#0f172a',
     fontWeight: '800'
   },
   subtitle: {
-    fontSize: 13,
-    color: '#475569'
+    fontSize: 14,
+    color: '#334155'
   },
   calendarCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     borderCurve: 'continuous',
-    padding: 8
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#e2e8f0'
   },
   summaryCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     padding: 16,
     gap: 6
   },
@@ -175,12 +206,12 @@ const styles = StyleSheet.create({
     fontSize: 14
   },
   exportRow: {
-    flexDirection: 'row',
-    gap: 8
+    flexDirection: 'row'
   },
   exportButton: {
     flex: 1,
-    minHeight: 42
+    minHeight: 46,
+    backgroundColor: '#0f172a'
   },
   listSection: {
     gap: 8

@@ -8,10 +8,10 @@ type AppEnv = {
 };
 
 const fallbackEnv: AppEnv = {
-  appName: 'Native App Template',
-  appSlug: 'native-app-template',
-  iosBundleId: 'com.company.nativeapp',
-  androidPackage: 'com.company.nativeapp'
+  appName: 'Quads Burn',
+  appSlug: 'quads-burn',
+  iosBundleId: 'com.taccaya.quadsburn',
+  androidPackage: 'com.taccaya.quadsburn'
 };
 
 function readStringExtra(key: keyof AppEnv, fallback: string) {

@@ -13,12 +13,14 @@ export function WeeklyGoalCard({ stats }: WeeklyGoalCardProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>今週の目標</Text>
-      <Text style={styles.value}>
-        {stats.sessionCount} / {stats.goalSessions} 回
-      </Text>
+      <View style={styles.valueRow}>
+        <Text style={styles.valueMain}>{stats.sessionCount}</Text>
+        <Text style={styles.valueSub}> / {stats.goalSessions} 回</Text>
+      </View>
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${percentage}%` }]} />
       </View>
+      <Text style={styles.percentage}>{percentage}%</Text>
       <Text style={styles.meta}>
         期間: {stats.weekStartDate} - {stats.weekEndDate}
       </Text>
@@ -34,9 +36,11 @@ export function WeeklyGoalCard({ stats }: WeeklyGoalCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f8fafc',
     borderRadius: 16,
     borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: '#dbeafe',
     padding: 16,
     gap: 8
   },
@@ -45,13 +49,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#0f172a'
   },
-  value: {
-    fontSize: 24,
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end'
+  },
+  valueMain: {
+    fontSize: 34,
     fontWeight: '800',
-    color: '#0f172a'
+    color: '#0f172a',
+    lineHeight: 38,
+    fontVariant: ['tabular-nums']
+  },
+  valueSub: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#334155',
+    paddingBottom: 3
   },
   progressTrack: {
-    height: 10,
+    height: 8,
     borderRadius: 999,
     borderCurve: 'continuous',
     overflow: 'hidden',
@@ -59,7 +75,12 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#0f172a'
+    backgroundColor: '#16a34a'
+  },
+  percentage: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#166534'
   },
   meta: {
     fontSize: 13,
